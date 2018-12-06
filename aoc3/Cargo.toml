@@ -1,0 +1,7 @@
+[package]
+name = "aoc3"
+version = "0.1.0"
+authors = ["Ole Andre Birkedal <birkedal@extab.net>"]
+
+[dependencies]
+regex = "1"

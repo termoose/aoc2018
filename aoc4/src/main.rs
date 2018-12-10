@@ -15,18 +15,24 @@ fn str_list(handle: &File) -> Vec<String> {
 }
 
 // [1518-11-01 00:05] -> NaiveDateTime
-fn to_date(line: &str) -> NaiveDateTime
+fn to_date(line: &str) -> (NaiveDateTime, String)
 {
-    let caps = Regex::new(r"\[([0-9]+)-([0-9]+)-([0-9]+) ([0-9]+):([0-9]+)\]").unwrap();
+    let caps = Regex::new(r"\[([0-9]+)-([0-9]+)-([0-9]+) ([0-9]+):([0-9]+)\] (.+)").unwrap();
     let cap = caps.captures(line).unwrap();
 
-    let list: Vec<u32> = cap.iter()
+    let list: Vec<_> = cap.iter()
         .skip(1)
         .map(|c| c.unwrap().as_str())
-        .map(|s| s.parse::<u32>().unwrap())
+//        .map(|s| s.parse::<u32>().unwrap())
         .collect();
     
-    NaiveDate::from_ymd(list[0] as i32, list[1], list[2]).and_hms(list[3], list[4], 0)
+    (NaiveDate::from_ymd(list[0].parse::<i32>().unwrap(),
+                         list[1].parse::<u32>().unwrap(),
+                         list[2].parse::<u32>().unwrap())
+     .and_hms(
+         list[3].parse::<u32>().unwrap(),
+         list[4].parse::<u32>().unwrap(), 0),
+     list[5].to_string())
 }
 
 fn main() {
@@ -35,7 +41,7 @@ fn main() {
     let lines = str_list(&f);
 
     for line in lines {
-        let date: NaiveDateTime = to_date(&line);
-        println!("Date: {:?}", date);
+        let (date, msg) = to_date(&line);
+        println!("Date: {:?} Msg: {}", date, msg);
     }
 }

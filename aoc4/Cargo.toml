@@ -6,3 +6,4 @@ authors = ["Ole Andre Birkedal <birkedal@extab.net>"]
 [dependencies]
 regex = "1"
 chrono = "0.4"
+itertools = "0.7.11"

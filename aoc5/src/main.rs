@@ -18,42 +18,86 @@ fn toggle(c: char) -> String {
     c.to_uppercase().to_string()
 }
 
-fn combine(left: char, right: char) -> Option<String> {
+fn combine(left: char, right: char) -> bool {
     let left_other: String = toggle(left);
     let right_other: String = toggle(right);
-
     if left_other == right.to_string() || right_other == left.to_string() {
-        return None
+        return false
     }
 
-    Some([left, right].into_iter().collect())
+    true
+}
+
+fn remove(list: Vec<char>, letter: char) -> String {
+    list.iter()
+        .filter(|c| **c != letter && (**c).to_string() != toggle(letter)).collect()
 }
 
 fn scan(list: Vec<char>) -> String {
     let mut result: String = String::new();
 
-    for i in 0..(list.len() - 1) {
+    let mut i = 0;
+    while i < list.len() {
+        if i == list.len() - 1 {
+            result += &list[i].to_string();
+            break;
+        }
         let first = list[i];
         let second = list[i+1];
 
         let combined = combine(first, second);
 
         match combined {
-            Some(x) => {
-                result += &x;
+            true => {
+                result += &first.to_string();
+                i += 1;
             },
-            None => {}
+            false => {
+                i += 2;
+            }
         }
     }
 
     result
 }
 
+fn solve(list: String) -> usize {
+    let mut curr_string: String = String::new();
+    let mut prev_string: String = list.trim().to_string();
+
+    loop {
+        curr_string = scan(prev_string.trim().chars().collect());
+
+        if(curr_string.len() == prev_string.len()) {
+            return curr_string.len();
+        }
+
+        prev_string = curr_string;
+    }
+}
+
 fn main() {
     let f = File::open("input.txt").unwrap();
     let file = file_to_string(&f);
 
-    println!("Scan: {}", scan(file.chars().collect()));
-    println!("Combine: {:?}", combine('a', 'A'));
-    println!("Combine: {:?}", combine('a', 'B'));
+    // let mut curr_string: String = String::new();
+    // let mut prev_string: String = file.trim().to_string();
+
+    for n in b'a'..(b'z'+1) {
+        //println!("Char: {}", n as char);
+        println!("{}: {}", n as char,
+                 solve(remove(file.chars().collect(), n as char)));
+    }
+
+    //println!("Remove: {}", remove(vec!['a', 'a', 'b'], 'B'));
+
+    // loop {
+    //     curr_string = scan(prev_string.trim().chars().collect());
+    //     if curr_string.len() == prev_string.len() {
+    //         println!("Solution length {}", curr_string.len());
+    //         break;
+    //     }
+
+    //     prev_string = curr_string;
+    // }
 }

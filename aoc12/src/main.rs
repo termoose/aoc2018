@@ -45,8 +45,8 @@ fn unset_bit(input: u128, pos: i32) -> u128 {
     input & !(1 << pos)
 }
 
-fn get_bit(input: u128, n: i32) -> u8 {
-    ((input & (1 << n)) >> n) as u8
+fn get_bit(input: u128, n: i32) -> bool {
+    ((input & (1 << n)) >> n) == 1
 }
 
 fn count(input: u128, zero_pos: i32, length: i32) -> i32 {
@@ -55,7 +55,7 @@ fn count(input: u128, zero_pos: i32, length: i32) -> i32 {
         let bit = get_bit(input, length - n - 1);
         let position = n - zero_pos;
 
-        if bit == 1 {
+        if bit {
             sum += position;
         }
     }
@@ -84,7 +84,13 @@ fn multi_mutate(input: u128, mutations: &Vec<Mutation>) -> u128 {
     result
 }
 
+fn useful_mutate(m: Mutation) -> bool {
+    (((m.0 & (1 << 2)) >> 2) == 1) == m.1
+}
+
 fn main() {
+    let input_start = SystemTime::now();
+
     let f = File::open("input.txt").unwrap();
     let lines = str_list(&f);
     let init_state: u128 = to_init_state(&lines[0]);
@@ -94,9 +100,15 @@ fn main() {
 
     let mutations: Vec<Mutation> = lines[2..].iter()
         .map(|l| mutation(l))
+        .filter(|m| useful_mutate(*m))
         .collect();
 
     let mut result: u128 = init_state_padded;
+    
+    let input_end = SystemTime::now();
+    let input_duration = input_end.duration_since(input_start).unwrap();
+    let input_ms = input_duration.subsec_micros() as u64;
+    println!("Runtime init: {} µs", input_ms);
 
     let start = SystemTime::now();
 
@@ -110,5 +122,5 @@ fn main() {
     let duration = finished.duration_since(start).unwrap();
     let ms = duration.subsec_micros() as u64;
     
-    println!("{} in microseconds: {}", sum, ms);
+    println!("Runtime P1: {} µs", ms);
 }

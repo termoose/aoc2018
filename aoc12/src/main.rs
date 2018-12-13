@@ -41,6 +41,10 @@ fn set_bit(input: u128, pos: i32) -> u128 {
     input | (1 << pos)
 }
 
+fn set_bit_val(input: u128, pos: i32, bit: bool) -> u128 {
+    (input | (1 << pos)) & ((bit as u128) << pos)
+}
+
 fn unset_bit(input: u128, pos: i32) -> u128 {
     input & !(1 << pos)
 }
@@ -53,11 +57,8 @@ fn count(input: u128, zero_pos: i32, length: i32) -> i32 {
     let mut sum = 0;
     for n in 0..length {
         let bit = get_bit(input, length - n - 1);
-        let position = n - zero_pos;
 
-        if bit {
-            sum += position;
-        }
+        sum += (n - zero_pos) * bit as i32;
     }
 
     sum
@@ -71,12 +72,7 @@ fn multi_mutate(input: u128, mutations: &Vec<Mutation>) -> u128 {
 
         for (pattern, c) in mutations {
             if bits == *pattern {
-                if *c {
-                    result = unset_bit(result, LENGTH - 1 - i - 3);
-                }
-                else {
-                    result = set_bit(result, LENGTH - 1 - i - 3);
-                }
+                result = set_bit_val(result, LENGTH - 1 - i - 3, !*c);
             }
         }
     }
@@ -85,7 +81,7 @@ fn multi_mutate(input: u128, mutations: &Vec<Mutation>) -> u128 {
 }
 
 fn useful_mutate(m: Mutation) -> bool {
-    (((m.0 & (1 << 2)) >> 2) == 1) == m.1
+    (m.0 & 0b00100 == 0b00100) == m.1
 }
 
 fn main() {
@@ -122,5 +118,5 @@ fn main() {
     let duration = finished.duration_since(start).unwrap();
     let ms = duration.subsec_micros() as u64;
     
-    println!("Runtime P1: {} µs", ms);
+    println!("{} Runtime P1: {} µs", sum, ms);
 }

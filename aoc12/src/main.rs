@@ -42,7 +42,7 @@ fn set_bit(input: u128, pos: i32) -> u128 {
 }
 
 fn set_bit_val(input: u128, pos: i32, bit: bool) -> u128 {
-    (input | (1 << pos)) & ((bit as u128) << pos)
+    input & (!(1 << pos)) | ((bit as u128) << pos)
 }
 
 fn unset_bit(input: u128, pos: i32) -> u128 {
@@ -72,7 +72,13 @@ fn multi_mutate(input: u128, mutations: &Vec<Mutation>) -> u128 {
 
         for (pattern, c) in mutations {
             if bits == *pattern {
-                result = set_bit_val(result, LENGTH - 1 - i - 3, !*c);
+                //result = set_bit_val(result, LENGTH - 1 - i - 3, !*c);
+                if *c {
+                    result = unset_bit(result, LENGTH - 1 - i - 3);
+                }
+                else {
+                    result = set_bit(result, LENGTH - 1 - i - 3);
+                }
             }
         }
     }

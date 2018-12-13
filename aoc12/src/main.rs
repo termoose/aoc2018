@@ -1,10 +1,9 @@
-extern crate regex;
 use std::io::BufReader;
 use std::io::BufRead;
 use std::fs::File;
-use regex::Regex;
+use std::time::{SystemTime};
 
-type Mutation = (u128, u128);
+type Mutation = (u8, bool);
 
 const MASK: u128 = 0b11111;
 const MASK_SIZE: i32 = 5;
@@ -31,11 +30,11 @@ fn to_init_state(line: &str) -> u128 {
 
 fn mutation(line: &str) -> Mutation {
     let parts: Vec<&str> = line.split(' ').collect();
-    (to_bits(parts[0]), to_bits(parts[2]))
+    (to_bits(parts[0]) as u8, to_bits(parts[2]) == 0)
 }
 
-fn get_bits(input: u128, n: i32) -> u128 {
-    input >> (LENGTH - n - (MASK_SIZE + 1)) & MASK
+fn get_bits(input: u128, n: i32) -> u8 {
+    (input >> (LENGTH - n - (MASK_SIZE + 1)) & MASK) as u8
 }
 
 fn set_bit(input: u128, pos: i32) -> u128 {
@@ -46,8 +45,8 @@ fn unset_bit(input: u128, pos: i32) -> u128 {
     input & !(1 << pos)
 }
 
-fn get_bit(input: u128, n: i32) -> u128 {
-    (input & (1 << n)) >> n
+fn get_bit(input: u128, n: i32) -> u8 {
+    ((input & (1 << n)) >> n) as u8
 }
 
 fn count(input: u128, zero_pos: i32, length: i32) -> i32 {
@@ -72,7 +71,7 @@ fn multi_mutate(input: u128, mutations: &Vec<Mutation>) -> u128 {
 
         for (pattern, c) in mutations {
             if bits == *pattern {
-                if c == &0 {
+                if *c {
                     result = unset_bit(result, LENGTH - 1 - i - 3);
                 }
                 else {
@@ -90,24 +89,26 @@ fn main() {
     let lines = str_list(&f);
     let init_state: u128 = to_init_state(&lines[0]);
 
-    // Pad with 16 bits on each end
+    // Pad with some bits on each end
     let init_state_padded = init_state << 28;
 
     let mutations: Vec<Mutation> = lines[2..].iter()
         .map(|l| mutation(l))
         .collect();
 
-    println!("    {:0128b}", init_state_padded);
-
     let mut result: u128 = init_state_padded;
-    for i in 0..20 {
-        result = multi_mutate(result, &mutations);
 
-        println!("{:2}: {:0128b}", i, result);
+    let start = SystemTime::now();
+
+    for _ in 0..20 {
+        result = multi_mutate(result, &mutations);
     }
 
-    println!("\n{:0128b}", result);
-
     let sum = count(result, 5, LENGTH);
-    println!("Sum: {}", sum);
+
+    let finished = SystemTime::now();
+    let duration = finished.duration_since(start).unwrap();
+    let ms = duration.subsec_micros() as u64;
+    
+    println!("{} in microseconds: {}", sum, ms);
 }

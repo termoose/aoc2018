@@ -64,6 +64,17 @@ fn count(input: u128, zero_pos: i32, length: i32) -> i32 {
     sum
 }
 
+fn leftmost_index(input: u128) -> i32
+{
+    for n in 0..LENGTH {
+        if get_bit(input, LENGTH - n - 1) {
+            return n;
+        }
+    }
+
+    return LENGTH;
+}
+
 fn multi_mutate(input: u128, mutations: &Vec<Mutation>) -> u128 {
     let mut result: u128 = input;
 
@@ -114,8 +125,18 @@ fn main() {
 
     let start = SystemTime::now();
 
+    // let mut shifted = 0;
+    // let left_padding = 1;
     for _ in 0..20 {
         result = multi_mutate(result, &mutations);
+        // let left_count = leftmost_index(result);
+
+        // if left_count > left_padding {
+        //     shifted += 1;
+        //     result <<= 1;
+        // }
+
+        // println!("{} {:0128b}", left_count, result);
     }
 
     let sum = count(result, 5, LENGTH);

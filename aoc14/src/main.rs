@@ -1,4 +1,5 @@
 use std::ops::Rem;
+use std::time::{SystemTime};
 
 const INPUT: usize = 556061;
 
@@ -23,6 +24,7 @@ fn main() {
 
     let input_digits = &to_digits(INPUT as u32)[..];
 
+    let start = SystemTime::now();
     loop {
         let sum = get_sum(&recipes, elf1, elf2);
         let sum_digits = to_digits(sum);
@@ -36,24 +38,31 @@ fn main() {
 
         //println!("Len: {}", recipes.len());
         // if recipes.len() >= INPUT + 10 {
+        //     let end = SystemTime::now();
+        //     let dur = end.duration_since(start).unwrap();
+        //     println!("Time: {} microseconds", dur.subsec_micros() as u64);
         //     println!("Recipes: {}", recipes.len());
         //     println!("{} {}: {:?}", elf1, elf2, &recipes[INPUT..]);
-
-        if recipes.len() > 15 {
-            let padded_slice = &recipes[(recipes.len()-7)..];
             
-            let pos = padded_slice
-                .windows(input_digits.len())
-                .position(|w| w == input_digits);
-            match pos {
-                Some(n) => {
-                    println!("Len: {} Pos: {}: {:?}", recipes.len(), n, padded_slice);
-                    println!("Index: {}", recipes.len() + n);
-                    break;
-                }
-                None => {}
-            }
-        }
+         if recipes.len() > 15 {
+             let padded_slice = &recipes[(recipes.len()-7)..];
+            
+             let pos = padded_slice
+                 .windows(input_digits.len())
+                 .position(|w| w == input_digits);
+             match pos {
+                 Some(n) => {
+                     let end = SystemTime::now();
+                     let dur = end.duration_since(start).unwrap();
+                     println!("Time: {} microseconds", dur.subsec_micros() as u64);
+
+                     println!("Len: {} Pos: {}: {:?}", recipes.len(), n, padded_slice);
+                     println!("Index: {}", recipes.len() + n);
+                     break;
+                 }
+                 None => {}
+             }
+         }
         //     break;
         // }
         //println!("{} {}: {:?}", elf1, elf2, recipes);

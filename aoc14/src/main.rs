@@ -40,7 +40,7 @@ fn main() {
         //     println!("{} {}: {:?}", elf1, elf2, &recipes[INPUT..]);
 
         if recipes.len() > 15 {
-            let padded_slice = &recipes[(recipes.len()-10)..];
+            let padded_slice = &recipes[(recipes.len()-7)..];
             
             let pos = padded_slice
                 .windows(input_digits.len())
